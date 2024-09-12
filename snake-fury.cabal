@@ -1,0 +1,58 @@
+cabal-version:  3.0
+name:           snake-fury
+version:        0.1.0.0
+description:    Please see the README on GitHub at <https://github.com/lsmor/snake-fury#readme>
+homepage:       https://github.com/lsmor/snake-fury#readme
+bug-reports:    https://github.com/lsmor/snake-fury/issues
+author:         Luis Morillo Najarro
+copyright:      2021 Luis Morillo Najarro
+license:        BSD-3-Clause
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+    ChangeLog.md
+
+source-repository head
+  type: git
+  location: https://github.com/lsmor/snake-fury
+
+library
+  exposed-modules:
+      EventQueue
+      RenderState
+      GameState
+      Initialization
+  other-modules:
+      Paths_snake_fury
+  hs-source-dirs:
+      src
+  ghc-options: -Wall
+  default-extensions:
+      StrictData
+  build-depends:
+      base >=4.14 && < 5
+    , BoundedChan
+    , array
+    , bytestring
+    , containers
+    , transformers
+    , mtl
+    , random
+  default-language: Haskell2010
+
+executable snake-fury
+  main-is: Main.hs
+  other-modules:
+      Paths_snake_fury
+  hs-source-dirs:
+      app
+  default-extensions:
+      StrictData
+  ghc-options: -threaded -rtsopts -Wall "-with-rtsopts --io-manager=native"
+  build-depends:
+      base
+    , snake-fury
+    , bytestring
+  default-language: Haskell2010
+
