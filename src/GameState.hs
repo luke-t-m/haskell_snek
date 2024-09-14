@@ -1,7 +1,7 @@
 {-|
 This module defines the logic of the game and the communication with the `Board.RenderState`
 -}
-module GameState where 
+module GameState where
 
 -- These are all the import. Feel free to use more if needed.
 import RenderState (BoardInfo (..), Point, DeltaBoard)
@@ -32,19 +32,29 @@ data GameState = GameState
 
 -- | This function should calculate the opposite movement.
 opositeMovement :: Movement -> Movement
-opositeMovement = undefined
+opositeMovement North = South
+opositeMovement South = North
+opositeMovement East = West
+opositeMovement West = East
 
 -- >>> opositeMovement North == South
 -- >>> opositeMovement South == North
 -- >>> opositeMovement East == West
 -- >>> opositeMovement West == East
+-- True
+-- True
+-- True
+-- True
 
 
 -- | Purely creates a random point within the board limits
 --   You should take a look to System.Random documentation. 
 --   Also, in the import list you have all relevant functions.
 makeRandomPoint :: BoardInfo -> StdGen -> (Point, StdGen)
-makeRandomPoint = undefined
+makeRandomPoint board seed = do
+  let (x, seed') = uniformR (0, width board) seed
+  let (y, seed'') = uniformR (0, height board) seed'
+  ((x, y), seed'')
 
 {-
 We can't test makeRandomPoint, because different implementation may lead to different valid result.
@@ -53,7 +63,7 @@ We can't test makeRandomPoint, because different implementation may lead to diff
 
 -- | Check if a point is in the snake
 inSnake :: Point -> SnakeSeq  -> Bool
-inSnake = undefined
+inSnake p snek = snakeHead snek == p || isJust (S.findIndexL (==p) (snakeBody snek))
 
 {-
 This is a test for inSnake. It should return 
@@ -65,11 +75,30 @@ False
 -- >>> inSnake (1,1) snake_seq
 -- >>> inSnake (1,2) snake_seq
 -- >>> inSnake (1,4) snake_seq
+-- True
+-- True
+-- False
+
+addPoints :: Point -> Point -> Point
+addPoints (a, b) (c, d) = (a + c, b + d)
+
+movementToPoint :: Movement -> Point
+movementToPoint North = (-1, 0)
+movementToPoint South = (1, 0)
+movementToPoint East = (0, 1)
+movementToPoint West = (0, -1)
+
+wrap :: Integral a => a -> a -> a
+wrap n ceil = mod (n + ceil -1) ceil + 1
+
+wrapPoint :: Point -> BoardInfo -> Point
+wrapPoint (c, r) board = (wrap c (width board), wrap r (height board))
+
 
 -- | Calculates de new head of the snake. Considering it is moving in the current direction
 --   Take into acount the edges of the board
 nextHead :: BoardInfo -> GameState -> Point
-nextHead = undefined
+nextHead board state = wrapPoint (addPoints (snakeHead $ snakeSeq state) (movementToPoint $ movement state)) board
 
 {-
 This is a test for nextHead. It should return
@@ -86,6 +115,9 @@ True
 -- >>> nextHead board_info game_state1 == (1,4)
 -- >>> nextHead board_info game_state2 == (2,1)
 -- >>> nextHead board_info game_state3 == (4,1)
+-- True
+-- True
+-- True
 
 
 -- | Calculates a new random apple, avoiding creating the apple in the same place, or in the snake body
